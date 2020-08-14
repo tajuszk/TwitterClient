@@ -1,12 +1,4 @@
 /**
-* TwitterClientクラスを外部スクリプトから呼び出すための関数
-* @return {TwitterClient}
-*/
-function getInstance(consumerKey, consumerSecret) {
-  return new TwitterClient(consumerKey, consumerSecret);
-}
-
-/**
 * Twitterの認証に関わる処理をまとめたクラス
 * 認証、API実行など
 */
@@ -130,6 +122,50 @@ class TwitterClient {
     return result
   }
   
+  
+  /**
+  * 画像を添付してツイート
+  */
+  postTweetWithMedia() {
+    const postData = pickUpTweetDataInOrder()
+    
+    // ファイルアップロード処理
+    let mediaIds = ''
+    for (let i = 0, il = postData.fileIdArray.length; i < il; i++) {
+      const mediaId = uploadTwitterForDriveMedia(postData.fileIdArray[i]);
+      if (mediaIds !== '') {
+        mediaIds += ',' + mediaId
+      } else {
+        mediaIds = mediaId
+      }
+    }
+    
+    // アップロードしたファイルを添付して投稿
+    const postUrl = 'https://api.twitter.com/1.1/statuses/update.json'
+    const postParam = {
+      status: postData.message,
+      media_ids: mediaIds
+    }
+    
+    const postResult = this.postRequest(postUrl, postParam)
+  }
+  
+  /**
+  * Googleドライブから画像を取得してアップロード
+  * @return {String} 
+  */
+  uploadTwitterForDriveMedia (fileId) {
+    // ファイルアップロード処理
+    const fileByApp = DriveApp.getFileById(fileId)
+    const base64Data = Utilities.base64Encode(fileByApp.getBlob().getBytes());
+    const uploadUrl = 'https://upload.twitter.com/1.1/media/upload.json'
+    const uploadParam = {
+      media_data: base64Data
+    }
+    const uploadResult = this.postRequest(uploadUrl, uploadParam)
+    return uploadResult.media_id_string
+  }
+  
   /** 
   * OAuthのインスタンスを作る
   */
@@ -143,4 +179,12 @@ class TwitterClient {
     .setCallbackFunction('authCallback')
     .setPropertyStore(PropertiesService.getUserProperties());
   }
+}
+
+/**
+* TwitterClientクラスを外部スクリプトから呼び出すための関数
+* @return {TwitterClient}
+*/
+function getInstance(consumerKey, consumerSecret) {
+  return new TwitterClient(consumerKey, consumerSecret);
 }
