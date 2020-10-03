@@ -9,8 +9,8 @@ MtWJFxCibKiP9SvrKBk8a0_EqweE_tvXn
 ```
 をライブラリに登録できます
 
-詳しい使い方は後で書きます
-
+詳しい使い方は弊ブログで。。。 
+[【爆速】自作のTwitterBotを簡単に作るライブラリを作った話【初心者向け】](https://belltree.life/twitterbot-library/)	
 
 ## LICENCE
 MIT
