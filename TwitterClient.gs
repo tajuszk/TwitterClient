@@ -6,10 +6,11 @@ class TwitterClient {
   /**
   * コンストラクタ
   */
-  constructor(consumerKey, consumerSecret) {
+  constructor(consumerKey, consumerSecret, clientName) {
     this.consumerKey = consumerKey;
     this.consumerSecret = consumerSecret;
     this.scriptId = ScriptApp.getScriptId();
+    this.clientId = this.scriptId + clientName;
     this.oauth = this._getOAuthService();
   }
   
@@ -132,7 +133,7 @@ class TwitterClient {
     // ファイルアップロード処理
     let mediaIds = ''
     for (let i = 0, il = postData.fileIdArray.length; i < il; i++) {
-      const mediaId = uploadTwitterForDriveMedia(postData.fileIdArray[i]);
+      const mediaId = this.uploadTwitterForDriveMedia(postData.fileIdArray[i]);
       if (mediaIds !== '') {
         mediaIds += ',' + mediaId
       } else {
@@ -170,7 +171,7 @@ class TwitterClient {
   * OAuthのインスタンスを作る
   */
   _getOAuthService() {
-    return OAuth1.createService(this.scriptId)
+    return OAuth1.createService(this.clientId)
     .setAccessTokenUrl('https://api.twitter.com/oauth/access_token')
     .setRequestTokenUrl('https://api.twitter.com/oauth/request_token')
     .setAuthorizationUrl('https://api.twitter.com/oauth/authorize')
@@ -181,10 +182,23 @@ class TwitterClient {
   }
 }
 
+// TwitterClientをまとめる配列
+const clientList = {}
+
 /**
 * TwitterClientクラスを外部スクリプトから呼び出すための関数
 * @return {TwitterClient}
 */
-function getInstance(consumerKey, consumerSecret) {
-  return new TwitterClient(consumerKey, consumerSecret);
+function getInstance(consumerKey, consumerSecret, clientName = '') {
+  const client = new TwitterClient(consumerKey, consumerSecret, clientName);
+  clientList[client.oauth.serviceName_] = client
+  return client
+}
+
+/**
+* TwitterClientクラスのインスタンスの一覧を取得
+* @return {Array}
+*/
+function getClientList () {
+  return clientList
 }

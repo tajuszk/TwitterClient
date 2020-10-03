@@ -28,7 +28,7 @@ function pickUpTweetInOrder(sheetName = 'シート1') {
   // という形式になっている
  // Logger.log(cells);
   
-  const postData = cells[0]; // postData = [ '投稿内容', '投稿回数'] なので postData[0] => 投稿内容, postData[1] => 投稿回数 
+  let postData = cells[0]; // postData = [ '投稿内容', '投稿回数'] なので postData[0] => 投稿内容, postData[1] => 投稿回数 
   let row = 1 // 行番号（選ばれたらその行の投稿された回数を+1するために持っておく）
   for (let i = 0, il = cells.length; i < il; i++ ) {
     // 投稿回数が少なかったら更新（回数が同じであればそのまま）
@@ -53,6 +53,7 @@ function pickUpTweetInOrder(sheetName = 'シート1') {
 }
 
 
+
 /**
 * ツイートをランダムに選択する処理
 *
@@ -64,23 +65,36 @@ function pickUpTweetRandom(sheetName = 'シート1') {
   const startRow = 1 + titleRow; // 1行目は『投稿内容』とか書いているので2行目から
   const startCol = 1;
   const endRow = sheetData.getLastRow() - titleRow; // 最後の行まで（2行目から始まっているので-1している）
-  const endCol = 2; // 『重み』の列までなので2列目まで
+  const endCol = 3; // 『前回の投稿』の列までなので3列目まで
   
   // 投稿を一括で取得する
-  const cells = sheetData.getRange(startRow, startCol, endRow, endCol).getValues();
-    
+  const cells = sheetData.getRange(startRow, startCol, endRow, endCol).getValues();  
+  
   // 重みの合計を出す
   let weightSum = 0;
   for (let i = 0, il = cells.length; i < il; i++ ) {
+    // 前回の投稿を除外する
+    const updateCell = sheetData.getRange(i + startRow, endCol, 1, 1);
+    updateCell.setValue(false);
+    if (typeof cells[i][2] != 'Boolean' && cells[i][2]) {
+      continue
+    }
     weightSum += cells[i][1];
   }
-
+  
   let randomValue = weightSum * Math.random();
   let postMessage = "";
   for (let i = 0, il = cells.length; i < il; i++ ) {
+    // 前回の投稿を除外する
+    if (typeof cells[i][2] != 'Boolean' && cells[i][2]) {
+      continue
+    }
     randomValue -= cells[i][1];
     if (randomValue < 0) {
       postMessage = cells[i][0];
+      // 投稿したことを記録する
+      const updateCell = sheetData.getRange(i + startRow, endCol, 1, 1);
+      updateCell.setValue(true);
       break;
     }
   }
@@ -113,7 +127,7 @@ function pickUpTweetDataInOrder(sheetName = 'シート1') {
   // という形式になっている
   // Logger.log(cells);
   
-  const targetData = cells[0]; // targetData = [ '投稿内容', '投稿回数'] なので targetData[0] => 投稿内容, targetData[1] => 投稿回数 
+  let targetData = cells[0]; // targetData = [ '投稿内容', '投稿回数'] なので targetData[0] => 投稿内容, targetData[1] => 投稿回数 
   let row = 1 // 行番号（選ばれたらその行の投稿された回数を+1するために持っておく）
   for (var i = 0, il = cells.length; i < il; i++ ) {
     // 投稿回数が少なかったら更新（回数が同じであればそのまま）
