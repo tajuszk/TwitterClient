@@ -5,7 +5,7 @@ Twitterに自動投稿するBotを簡単に作る
 
 ## 使い方
 ```
-MtWJFxCibKiP9SvrKBk8a0_EqweE_tvXn
+1fHCjI78BV3o7nGx2l0lJ7WXM49VFbobGDNdFGqAoVFZyRJ2kepQYzVLd
 ```
 をライブラリに登録できます
 
