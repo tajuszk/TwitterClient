@@ -301,7 +301,7 @@ class TwitterClient {
     const url = 'https://api.twitter.com/1.1/friendships/create.json'
     for (let i in userIds) {
       const param = {
-        user_id: userIds[i].toString()
+        user_id: userIds[i]
       }
       this.postRequest(url, param)
     }
